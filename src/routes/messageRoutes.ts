@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { postMessage, fetchMessages } from '../controllers/messageController';
+import { sendMessage, getMessages } from '../controllers/messageController';
+import { authenticate } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.post('/', postMessage);
-router.get('/', fetchMessages);
+// Apply the authenticate middleware to protect these routes
+router.post('/', authenticate, sendMessage);
+router.get('/', authenticate, getMessages);
 
 export default router;

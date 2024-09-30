@@ -1,18 +1,32 @@
 import Message from '../models/Message';
-import Cache from './cache';
+import User from '../models/User'; // Import the User model to check recipient existence
 
-export const sendMessage = async (sender: string, content: string) => {
-    const message = new Message({ sender, content });
-    await message.save();
-    await Cache.cacheMessage(message); // Optionally cache the message
-    return message;
-};
+class MessageService {
+    async sendMessage(sender: string, recipient: string, content: string) {
+        // Check if recipient exists
+        const recipientUser = await User.findOne({ username: recipient });
+        if (!recipientUser) {
+            throw new Error('Recipient does not exist');
+        }
 
-export const getMessages = async () => {
-    const cachedMessages = await Cache.getMessages(); // Try to get from cache
-    if (cachedMessages) {
-        return cachedMessages;
+        // Create and save the message
+        const message = new Message({
+            sender,
+            recipient,
+            content,
+            timestamp: new Date(),
+        });
+
+        await message.save();
+        return message;
     }
-    const messages = await Message.find().sort({ createdAt: -1 }).limit(50); // Fallback to DB
-    return messages;
-};
+
+    async getMessages(username: string) {
+        const messages = await Message.find({
+            $or: [{ sender: username }, { recipient: username }],
+        }).sort({ timestamp: -1 });
+        return messages;
+    }
+}
+
+export default new MessageService();
