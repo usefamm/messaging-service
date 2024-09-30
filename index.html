@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.io Test</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <h1>Socket.io Test Client</h1>
+    <input id="recipient" placeholder="Recipient Username" />
+    <input id="message" placeholder="Type a message" />
+    <button id="sendButton">Send Message</button>
+
+    <div id="messages"></div>
+
+    <script>
+        const socket = io('http://localhost:5000'); // Replace with your server URL
+
+        // Send message on button click
+        document.getElementById('sendButton').onclick = () => {
+            const recipient = document.getElementById('recipient').value;
+            const message = document.getElementById('message').value;
+            socket.emit('newMessage', { recipient, message });
+        };
+
+        // Listen for new messages
+        socket.on('newMessage', (msg) => {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += `<p>${msg.sender}: ${msg.content}</p>`;
+        });
+
+        // Emit typing
+        socket.on('typing', (data) => {
+            console.log(`${data.username} is typing...`);
+        });
+    </script>
+</body>
+
+</html>

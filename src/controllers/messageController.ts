@@ -9,7 +9,7 @@ interface AuthenticatedRequest extends Request {
 
 export const sendMessage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const sender = req.user?.username; // Get the sender from the authenticated user
-  const { recipient, message } = req.body; // Get recipient and message from the request body
+  const { recipient, content } = req.body; // Get recipient and message from the request body
 
   if (!sender) {
     res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -17,14 +17,14 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response): Pro
   }
 
   // Validate the message
-  if (!message) {
+  if (!content) {
     res.status(400).json({ success: false, message: 'Message content is required.' });
     return;
   }
 
   try {
     // Call the message service to send the message
-    const newMessage = await messageService.sendMessage(sender, recipient, message);
+    const newMessage = await messageService.sendMessage(sender, recipient, content);
     
     // Emit the new message to the recipient using Socket.io
     io.to(recipient).emit('newMessage', newMessage);

@@ -5,13 +5,13 @@ const setupSocket = (io: Server) => {
     io.on('connection', (socket) => {
         console.log('User connected');
 
-        socket.on('sendMessage', async (data: { sender: string; content: string }) => {
-            const message = new Message({ sender: data.sender, content: data.content });
-            await message.save();
-            io.emit('newMessage', message);
+        socket.on('message', async (message) => {
+            console.log("message", message);
+            
+            io.emit('message', message);
         });
 
-        socket.on('typing', (username: string) => {
+        socket.on('typing', (username: string) => {            
             socket.broadcast.emit('typing', username);
         });
 

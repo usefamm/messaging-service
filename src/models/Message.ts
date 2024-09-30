@@ -9,7 +9,7 @@ interface IMessage extends Document {
 
 const messageSchema = new Schema<IMessage>({
     sender: { type: String, required: true },
-    recipient: { type: String, required: true },
+    recipient: { type: String },
     content: { type: String, required: true },
     timestamp: { type: Date, default: Date.now }
 });
